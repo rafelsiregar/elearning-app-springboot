@@ -1,7 +1,7 @@
 package com.elearning.controller;
 
-import com.elearning.dto.QuestionDTO;
-import com.elearning.dto.QuizDTO;
+import com.elearning.wrapper.QuestionWrapper;
+import com.elearning.wrapper.QuizWrapper;
 import com.elearning.model.Question;
 import com.elearning.model.Quiz;
 import com.elearning.service.QuizService;
@@ -22,71 +22,90 @@ public class QuizController {
         this.quizService = quizService;
     }
 
-    private QuizDTO toDTO(Quiz quiz) {
-        QuizDTO dto = new QuizDTO();
-        dto.setId(quiz.getId());
-        dto.setTitle(quiz.getTitle());
-        List<QuestionDTO> questionDTOs = quiz.getQuestions().stream().map(this::toDTO).collect(Collectors.toList());
-        dto.setQuestions(questionDTOs);
-        return dto;
+    private QuizWrapper toWrapper(Quiz quiz) {
+        QuizWrapper wrapper = new QuizWrapper();
+        wrapper.setId(quiz.getId());
+        wrapper.setTitle(quiz.getTitle());
+        List<QuestionWrapper> questionWrappers = quiz.getQuestions().stream()
+            .map(this::toWrapper)
+            .collect(Collectors.toList());
+        wrapper.setQuestions(questionWrappers);
+        return wrapper;
     }
 
-    private QuestionDTO toDTO(Question question) {
-        QuestionDTO dto = new QuestionDTO();
-        dto.setId(question.getId());
-        dto.setText(question.getText());
-        dto.setOptions(question.getOptions());
-        dto.setCorrectOptionIndex(question.getCorrectOptionIndex());
-        return dto;
+    private QuestionWrapper toWrapper(Question question) {
+        QuestionWrapper wrapper = new QuestionWrapper();
+        wrapper.setId(question.getId());
+        wrapper.setText(question.getText());
+        wrapper.setType(question.getType());
+        wrapper.setOptions(question.getOptions());
+        wrapper.setCorrectOptionIndex(question.getCorrectOptionIndex());
+        wrapper.setCorrectAnswer(question.getCorrectAnswer());
+        wrapper.setMatching(question.getMatching());
+        wrapper.setRubric(question.getRubric());
+        return wrapper;
     }
 
-    private Quiz toEntity(QuizDTO dto) {
+    private Quiz toEntity(QuizWrapper wrapper) {
         Quiz quiz = new Quiz();
-        quiz.setId(dto.getId());
-        quiz.setTitle(dto.getTitle());
-        List<Question> questions = dto.getQuestions().stream().map(this::toEntity).collect(Collectors.toList());
+        quiz.setId(wrapper.getId());
+        quiz.setTitle(wrapper.getTitle());
+        List<Question> questions = wrapper.getQuestions().stream()
+            .map(this::toEntity)
+            .collect(Collectors.toList());
         quiz.setQuestions(questions);
         return quiz;
     }
 
-    private Question toEntity(QuestionDTO dto) {
+    private Question toEntity(QuestionWrapper wrapper) {
         Question question = new Question();
-        question.setId(dto.getId());
-        question.setText(dto.getText());
-        question.setOptions(dto.getOptions());
-        question.setCorrectOptionIndex(dto.getCorrectOptionIndex());
+        question.setId(wrapper.getId());
+        question.setText(wrapper.getText());
+        question.setType(wrapper.getType());
+        question.setOptions(wrapper.getOptions());
+        question.setCorrectOptionIndex(wrapper.getCorrectOptionIndex());
+        question.setCorrectAnswer(wrapper.getCorrectAnswer());
+        question.setMatching(wrapper.getMatching());
+        question.setRubric(wrapper.getRubric());
         return question;
     }
 
     @GetMapping
-    public List<QuizDTO> getAllQuizzes() {
-        return quizService.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<QuizWrapper> getAllQuizzes() {
+        return quizService.findAll().stream()
+            .map(this::toWrapper)
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QuizDTO> getQuizById(@PathVariable Long id) {
+    public ResponseEntity<QuizWrapper> getQuizById(@PathVariable Long id) {
         Optional<Quiz> quiz = quizService.findById(id);
-        return quiz.map(q -> ResponseEntity.ok(toDTO(q))).orElseGet(() -> ResponseEntity.notFound().build());
+        return quiz.map(q -> ResponseEntity.ok(toWrapper(q)))
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public QuizDTO createQuiz(@RequestBody QuizDTO quizDTO) {
-        Quiz quiz = toEntity(quizDTO);
+    public QuizWrapper createQuiz(@RequestBody QuizWrapper quizWrapper) {
+        Quiz quiz = toEntity(quizWrapper);
         Quiz savedQuiz = quizService.save(quiz);
-        return toDTO(savedQuiz);
+        return toWrapper(savedQuiz);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<QuizDTO> updateQuiz(@PathVariable Long id, @RequestBody QuizDTO quizDTO) {
+    public ResponseEntity<QuizWrapper> updateQuiz(
+            @PathVariable Long id,
+            @RequestBody QuizWrapper quizWrapper) {
         Optional<Quiz> quizOptional = quizService.findById(id);
         if (!quizOptional.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         Quiz quiz = quizOptional.get();
-        quiz.setTitle(quizDTO.getTitle());
-        quiz.setQuestions(quizDTO.getQuestions().stream().map(this::toEntity).collect(Collectors.toList()));
+        quiz.setTitle(quizWrapper.getTitle());
+        quiz.setQuestions(quizWrapper.getQuestions().stream()
+            .map(this::toEntity)
+            .collect(Collectors.toList()));
         Quiz updatedQuiz = quizService.save(quiz);
-        return ResponseEntity.ok(toDTO(updatedQuiz));
+        return ResponseEntity.ok(toWrapper(updatedQuiz));
     }
 
     @DeleteMapping("/{id}")
