@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Learning Platform
 
-## Getting Started
+A full-stack e-learning platform with quiz management, assignments, and grading features.
 
-First, run the development server:
+## Project Structure
 
+- `backend/`: Spring Boot backend application
+- `src/`: Next.js frontend application
+
+## Backend Setup (Spring Boot)
+
+1. Navigate to the backend directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd backend
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Build the project:
+```bash
+./mvnw clean install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the application:
+```bash
+./mvnw spring-boot:run
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The backend will start on `http://localhost:8080`
 
-## Learn More
+## Frontend Setup (Next.js)
 
-To learn more about Next.js, take a look at the following resources:
+1. Install dependencies:
+```bash
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Run the development server:
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The frontend will start on `http://localhost:3000`
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Quiz management with multiple question types:
+  - Multiple choice
+  - True/False
+  - Short answer
+  - Essay
+  - Matching
+- Assignment management
+- Grade tracking
+- Modern UI with Tailwind CSS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Endpoints
+
+### Quizzes
+- GET `/api/quizzes`: Get all quizzes
+- GET `/api/quizzes/{id}`: Get quiz by ID
+- POST `/api/quizzes`: Create new quiz
+- PUT `/api/quizzes/{id}`: Update quiz
+- DELETE `/api/quizzes/{id}`: Delete quiz
+
+### Assignments
+- GET `/api/assignments`: Get all assignments
+- GET `/api/assignments/{id}`: Get assignment by ID
+- POST `/api/assignments`: Create new assignment
+- PUT `/api/assignments/{id}`: Update assignment
+- DELETE `/api/assignments/{id}`: Delete assignment
+
+### Grades
+- GET `/api/grades`: Get all grades
+- GET `/api/grades/{id}`: Get grade by ID
+- POST `/api/grades`: Create new grade
+- PUT `/api/grades/{id}`: Update grade
+- DELETE `/api/grades/{id}`: Delete grade
