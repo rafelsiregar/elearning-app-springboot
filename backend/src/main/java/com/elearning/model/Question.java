@@ -2,6 +2,7 @@ package com.elearning.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Question {
@@ -11,12 +12,22 @@ public class Question {
 
     private String text;
 
+    @Enumerated(EnumType.STRING)
+    private QuestionType type;
+
     @ElementCollection
     private List<String> options;
 
-    private int correctOptionIndex;
+    private Integer correctOptionIndex;
 
-    // Getters and setters
+    private String correctAnswer;
+
+    @ElementCollection
+    private Map<String, String> matching;
+
+    // For essay questions, no correct answer is stored
+    private String rubric;
+
     public Long getId() {
         return id;
     }
@@ -33,6 +44,14 @@ public class Question {
         this.text = text;
     }
 
+    public QuestionType getType() {
+        return type;
+    }
+
+    public void setType(QuestionType type) {
+        this.type = type;
+    }
+
     public List<String> getOptions() {
         return options;
     }
@@ -41,11 +60,35 @@ public class Question {
         this.options = options;
     }
 
-    public int getCorrectOptionIndex() {
+    public Integer getCorrectOptionIndex() {
         return correctOptionIndex;
     }
 
-    public void setCorrectOptionIndex(int correctOptionIndex) {
+    public void setCorrectOptionIndex(Integer correctOptionIndex) {
         this.correctOptionIndex = correctOptionIndex;
+    }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
+    public Map<String, String> getMatching() {
+        return matching;
+    }
+
+    public void setMatching(Map<String, String> matching) {
+        this.matching = matching;
+    }
+
+    public String getRubric() {
+        return rubric;
+    }
+
+    public void setRubric(String rubric) {
+        this.rubric = rubric;
     }
 }
