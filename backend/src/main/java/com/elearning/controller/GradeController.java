@@ -1,6 +1,6 @@
 package com.elearning.controller;
 
-import com.elearning.dto.GradeDTO;
+import com.elearning.wrapper.GradeWrapper;
 import com.elearning.model.Grade;
 import com.elearning.service.GradeService;
 import org.springframework.http.ResponseEntity;
@@ -20,57 +20,62 @@ public class GradeController {
         this.gradeService = gradeService;
     }
 
-    private GradeDTO toDTO(Grade grade) {
-        GradeDTO dto = new GradeDTO();
-        dto.setId(grade.getId());
-        dto.setStudentId(grade.getStudentId());
-        dto.setQuizId(grade.getQuizId());
-        dto.setAssignmentId(grade.getAssignmentId());
-        dto.setScore(grade.getScore());
-        return dto;
+    private GradeWrapper toWrapper(Grade grade) {
+        GradeWrapper wrapper = new GradeWrapper();
+        wrapper.setId(grade.getId());
+        wrapper.setStudentId(grade.getStudentId());
+        wrapper.setQuizId(grade.getQuizId());
+        wrapper.setAssignmentId(grade.getAssignmentId());
+        wrapper.setScore(grade.getScore());
+        return wrapper;
     }
 
-    private Grade toEntity(GradeDTO dto) {
+    private Grade toEntity(GradeWrapper wrapper) {
         Grade grade = new Grade();
-        grade.setId(dto.getId());
-        grade.setStudentId(dto.getStudentId());
-        grade.setQuizId(dto.getQuizId());
-        grade.setAssignmentId(dto.getAssignmentId());
-        grade.setScore(dto.getScore());
+        grade.setId(wrapper.getId());
+        grade.setStudentId(wrapper.getStudentId());
+        grade.setQuizId(wrapper.getQuizId());
+        grade.setAssignmentId(wrapper.getAssignmentId());
+        grade.setScore(wrapper.getScore());
         return grade;
     }
 
     @GetMapping
-    public List<GradeDTO> getAllGrades() {
-        return gradeService.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<GradeWrapper> getAllGrades() {
+        return gradeService.findAll().stream()
+            .map(this::toWrapper)
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GradeDTO> getGradeById(@PathVariable Long id) {
+    public ResponseEntity<GradeWrapper> getGradeById(@PathVariable Long id) {
         Optional<Grade> grade = gradeService.findById(id);
-        return grade.map(g -> ResponseEntity.ok(toDTO(g))).orElseGet(() -> ResponseEntity.notFound().build());
+        return grade.map(g -> ResponseEntity.ok(toWrapper(g)))
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public GradeDTO createGrade(@RequestBody GradeDTO gradeDTO) {
-        Grade grade = toEntity(gradeDTO);
+    public GradeWrapper createGrade(@RequestBody GradeWrapper gradeWrapper) {
+        Grade grade = toEntity(gradeWrapper);
         Grade savedGrade = gradeService.save(grade);
-        return toDTO(savedGrade);
+        return toWrapper(savedGrade);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GradeDTO> updateGrade(@PathVariable Long id, @RequestBody GradeDTO gradeDTO) {
+    public ResponseEntity<GradeWrapper> updateGrade(
+            @PathVariable Long id,
+            @RequestBody GradeWrapper gradeWrapper) {
         Optional<Grade> gradeOptional = gradeService.findById(id);
         if (!gradeOptional.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         Grade grade = gradeOptional.get();
-        grade.setStudentId(gradeDTO.getStudentId());
-        grade.setQuizId(gradeDTO.getQuizId());
-        grade.setAssignmentId(gradeDTO.getAssignmentId());
-        grade.setScore(gradeDTO.getScore());
+        grade.setStudentId(gradeWrapper.getStudentId());
+        grade.setQuizId(gradeWrapper.getQuizId());
+        grade.setAssignmentId(gradeWrapper.getAssignmentId());
+        grade.setScore(gradeWrapper.getScore());
         Grade updatedGrade = gradeService.save(grade);
-        return ResponseEntity.ok(toDTO(updatedGrade));
+        return ResponseEntity.ok(toWrapper(updatedGrade));
     }
 
     @DeleteMapping("/{id}")
