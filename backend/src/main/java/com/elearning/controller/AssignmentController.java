@@ -1,6 +1,6 @@
 package com.elearning.controller;
 
-import com.elearning.dto.AssignmentDTO;
+import com.elearning.wrapper.AssignmentWrapper;
 import com.elearning.model.Assignment;
 import com.elearning.service.AssignmentService;
 import org.springframework.http.ResponseEntity;
@@ -20,54 +20,59 @@ public class AssignmentController {
         this.assignmentService = assignmentService;
     }
 
-    private AssignmentDTO toDTO(Assignment assignment) {
-        AssignmentDTO dto = new AssignmentDTO();
-        dto.setId(assignment.getId());
-        dto.setTitle(assignment.getTitle());
-        dto.setDescription(assignment.getDescription());
-        dto.setDueDate(assignment.getDueDate());
-        return dto;
+    private AssignmentWrapper toWrapper(Assignment assignment) {
+        AssignmentWrapper wrapper = new AssignmentWrapper();
+        wrapper.setId(assignment.getId());
+        wrapper.setTitle(assignment.getTitle());
+        wrapper.setDescription(assignment.getDescription());
+        wrapper.setDueDate(assignment.getDueDate());
+        return wrapper;
     }
 
-    private Assignment toEntity(AssignmentDTO dto) {
+    private Assignment toEntity(AssignmentWrapper wrapper) {
         Assignment assignment = new Assignment();
-        assignment.setId(dto.getId());
-        assignment.setTitle(dto.getTitle());
-        assignment.setDescription(dto.getDescription());
-        assignment.setDueDate(dto.getDueDate());
+        assignment.setId(wrapper.getId());
+        assignment.setTitle(wrapper.getTitle());
+        assignment.setDescription(wrapper.getDescription());
+        assignment.setDueDate(wrapper.getDueDate());
         return assignment;
     }
 
     @GetMapping
-    public List<AssignmentDTO> getAllAssignments() {
-        return assignmentService.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public List<AssignmentWrapper> getAllAssignments() {
+        return assignmentService.findAll().stream()
+            .map(this::toWrapper)
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AssignmentDTO> getAssignmentById(@PathVariable Long id) {
+    public ResponseEntity<AssignmentWrapper> getAssignmentById(@PathVariable Long id) {
         Optional<Assignment> assignment = assignmentService.findById(id);
-        return assignment.map(a -> ResponseEntity.ok(toDTO(a))).orElseGet(() -> ResponseEntity.notFound().build());
+        return assignment.map(a -> ResponseEntity.ok(toWrapper(a)))
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public AssignmentDTO createAssignment(@RequestBody AssignmentDTO assignmentDTO) {
-        Assignment assignment = toEntity(assignmentDTO);
+    public AssignmentWrapper createAssignment(@RequestBody AssignmentWrapper assignmentWrapper) {
+        Assignment assignment = toEntity(assignmentWrapper);
         Assignment savedAssignment = assignmentService.save(assignment);
-        return toDTO(savedAssignment);
+        return toWrapper(savedAssignment);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AssignmentDTO> updateAssignment(@PathVariable Long id, @RequestBody AssignmentDTO assignmentDTO) {
+    public ResponseEntity<AssignmentWrapper> updateAssignment(
+            @PathVariable Long id,
+            @RequestBody AssignmentWrapper assignmentWrapper) {
         Optional<Assignment> assignmentOptional = assignmentService.findById(id);
         if (!assignmentOptional.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         Assignment assignment = assignmentOptional.get();
-        assignment.setTitle(assignmentDTO.getTitle());
-        assignment.setDescription(assignmentDTO.getDescription());
-        assignment.setDueDate(assignmentDTO.getDueDate());
+        assignment.setTitle(assignmentWrapper.getTitle());
+        assignment.setDescription(assignmentWrapper.getDescription());
+        assignment.setDueDate(assignmentWrapper.getDueDate());
         Assignment updatedAssignment = assignmentService.save(assignment);
-        return ResponseEntity.ok(toDTO(updatedAssignment));
+        return ResponseEntity.ok(toWrapper(updatedAssignment));
     }
 
     @DeleteMapping("/{id}")
